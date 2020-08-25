@@ -357,7 +357,9 @@
                   timePicker: false,
                   showDropdowns: true,
                   singleDatePicker: true,
-                  format: $el.attr('data-date-format')
+                  locale:{
+                      format: $el.attr('data-date-format')
+                  }
                 },
                 function(start, end) {
                     $('.filter-val').trigger("change");
@@ -368,7 +370,9 @@
                   timePicker: false,
                   showDropdowns: true,
                   separator: ' to ',
-                  format: $el.attr('data-date-format')
+                  locale:{
+                      format: $el.attr('data-date-format')
+                  }
                 },
                 function(start, end) {
                     $('.filter-val').trigger("change");
@@ -381,7 +385,9 @@
                   singleDatePicker: true,
                   timePickerIncrement: 1,
                   timePicker12Hour: false,
-                  format: $el.attr('data-date-format')
+                  locale:{
+                      format: $el.attr('data-date-format')
+                  }
                 },
                 function(start, end) {
                     $('.filter-val').trigger("change");
@@ -401,7 +407,9 @@
                   timePickerIncrement: 1,
                   timePicker12Hour: false,
                   separator: ' to ',
-                  format: $el.attr('data-date-format')
+                  locale:{
+                      format: $el.attr('data-date-format')
+                  }
                 },
                 function(start, end) {
                     $('.filter-val').trigger("change");
@@ -412,7 +420,9 @@
                   // Bootstrap 2 option
                   timePicker: true,
                   showDropdowns: true,
-                  format: $el.attr('data-date-format'),
+                  locale:{
+                      format: $el.attr('data-date-format')
+                  },
                   timePicker12Hour: false,
                   timePickerIncrement: 1,
                   singleDatePicker: true
@@ -421,10 +431,10 @@
                     $('.filter-val').trigger("change");
                 });
                 // hack to hide calendar to create a time-only picker
-                $el.data('daterangepicker').container.find('.calendar-date').hide();
+                $el.data('daterangepicker').container.find('.calendar-table').hide();
                 $el.on('showCalendar.daterangepicker', function (event, data) {
                     var $container = data.container;
-                    $container.find('.calendar-date').remove();
+                    $container.find('.calendar-table').remove();
                 });
                 return true;
             case 'timerangepicker':
@@ -432,7 +442,9 @@
                   // Bootstrap 2 option
                   timePicker: true,
                   showDropdowns: true,
-                  format: $el.attr('data-date-format'),
+                  locale:{
+                      format: $el.attr('data-date-format')
+                  },
                   timePicker12Hour: false,
                   separator: ' to ',
                   timePickerIncrement: 1
@@ -441,14 +453,14 @@
                     $('.filter-val').trigger("change");
                 });
                 // hack - hide calendar + range inputs
-                $el.data('daterangepicker').container.find('.calendar-date').hide();
+                $el.data('daterangepicker').container.find('.calendar-table').hide();
                 $el.data('daterangepicker').container.find('.daterangepicker_start_input').hide();
                 $el.data('daterangepicker').container.find('.daterangepicker_end_input').hide();
                 // hack - add TO between time inputs
                 $el.data('daterangepicker').container.find('.left').before($('<div style="float: right; margin-top: 20px; padding-left: 5px; padding-right: 5px;"> to </span>'));
                 $el.on('showCalendar.daterangepicker', function (event, data) {
                     var $container = data.container;
-                    $container.find('.calendar-date').remove();
+                    $container.find('.calendar-table').remove();
                 });
                 return true;
             case 'leaflet':
