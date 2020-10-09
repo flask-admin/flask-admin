@@ -1,5 +1,4 @@
 from sqlalchemy import or_, and_, cast, text
-from sqlalchemy.types import String
 
 from flask_admin._compat import as_unicode, string_types
 from flask_admin.model.ajax import AjaxModelLoader, DEFAULT_PAGE_SIZE
@@ -71,7 +70,7 @@ class QueryAjaxModelLoader(AjaxModelLoader):
 
         # no type casting to string if a ColumnAssociationProxyInstance is given
         filters = (field.ilike(u'%%%s%%' % term) if is_association_proxy(field)
-                   else cast(field, String).ilike(u'%%%s%%' % term) for field in self._cached_fields)
+                   else cast(field, field.type).ilike(u'%%%s%%' % term) for field in self._cached_fields)
         query = query.filter(or_(*filters))
 
         if self.filters:
