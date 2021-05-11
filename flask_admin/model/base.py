@@ -732,6 +732,11 @@ class BaseModelView(BaseView, ActionsMixin):
         Customized rules for the create form. Override `form_rules` if present.
     """
 
+    freeze_fields = False
+    """
+        Keep field contents when clicking on "Save and Add Another".
+    """
+
     # Actions
     action_disallowed_list = ObsoleteAttr('action_disallowed_list',
                                           'disallowed_actions',
@@ -2101,7 +2106,10 @@ class BaseModelView(BaseView, ActionsMixin):
             if model:
                 flash(gettext('Record was successfully created.'), 'success')
                 if '_add_another' in request.form:
-                    return redirect(request.url)
+                    # if the content of the fields should remain, we don't redirect.
+                    # this way the model is created without changing page contents.
+                    if not self.freeze_fields:
+                        return redirect(request.url)
                 elif '_continue_editing' in request.form:
                     # if we have a valid model, try to go to the edit view
                     if model is not True:
