@@ -16,7 +16,7 @@
                           form_overrides, action_disallowed_list,
                           form_widget_args, form_extra_fields,
                           form_ajax_refs, form_create_rules,
-                          form_edit_rules,
+                          form_edit_rules, freeze_fields
                           page_size, can_set_page_size
 
         .. autoattribute:: can_create
@@ -54,6 +54,8 @@
 
         .. autoattribute:: form_create_rules
         .. autoattribute:: form_edit_rules
+
+        .. autoattribute:: freeze_fields
 
         .. autoattribute:: action_disallowed_list
 
