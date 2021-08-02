@@ -773,7 +773,8 @@ class BaseModelView(BaseView, ActionsMixin):
 
     def __init__(self, model,
                  name=None, category=None, endpoint=None, url=None, static_folder=None,
-                 menu_class_name=None, menu_icon_type=None, menu_icon_value=None):
+                 menu_class_name=None, menu_icon_type=None,
+                 menu_icon_value=None, menu_order=0):
         """
             Constructor.
 
@@ -798,6 +799,8 @@ class BaseModelView(BaseView, ActionsMixin):
                  - `flask_admin.consts.ICON_TYPE_IMAGE_URL` - Image with full URL
             :param menu_icon_value:
                 Icon glyph name or URL, depending on `menu_icon_type` setting
+            :param menu_order:
+                An integer that determines the order of this view in the menu
         """
         self.model = model
 
@@ -808,7 +811,8 @@ class BaseModelView(BaseView, ActionsMixin):
         super(BaseModelView, self).__init__(name, category, endpoint, url, static_folder,
                                             menu_class_name=menu_class_name,
                                             menu_icon_type=menu_icon_type,
-                                            menu_icon_value=menu_icon_value)
+                                            menu_icon_value=menu_icon_value,
+                                            menu_order=menu_order)
 
         # Actions
         self.init_actions()
