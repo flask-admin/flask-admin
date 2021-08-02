@@ -3,6 +3,7 @@ from flask_admin.model import filters
 from flask_admin.contrib.sqla import tools
 from sqlalchemy.sql import not_, or_
 import enum
+import json
 
 
 class BaseSQLAFilter(filters.BaseFilter):
@@ -117,6 +118,19 @@ class FilterNotInList(FilterInList):
 
     def operation(self):
         return lazy_gettext('not in list')
+
+class FilterLikeMultiple(BaseSQLAFilter):
+    def __init__(self, column, name, options=None, data_type=None):
+        super(FilterLikeMultiple, self).__init__(column, name, options, data_type='like-multiple')
+
+    def clean(self, value):
+        return [v.strip() for v in json.loads(value) if v.strip()]
+
+    def apply(self, query, values, alias=None):
+        return query.filter(or_(*[self.get_column(alias).ilike(tools.parse_like_term(value)) for value in values]))
+
+    def operation(self):
+        return lazy_gettext('contains multiple')
 
 
 # Customized type filters
@@ -455,7 +469,7 @@ class UuidFilterNotInList(filters.BaseUuidListFilter, FilterNotInList):
 # Base SQLA filter field converter
 class FilterConverter(filters.BaseFilterConverter):
     strings = (FilterLike, FilterNotLike, FilterEqual, FilterNotEqual,
-               FilterEmpty, FilterInList, FilterNotInList)
+               FilterEmpty, FilterInList, FilterNotInList, FilterLikeMultiple)
     string_key_filters = (FilterEqual, FilterNotEqual, FilterEmpty, FilterInList, FilterNotInList)
     int_filters = (IntEqualFilter, IntNotEqualFilter, IntGreaterFilter,
                    IntSmallerFilter, FilterEmpty, IntInListFilter,

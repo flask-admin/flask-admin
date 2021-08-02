@@ -1,4 +1,4 @@
-var AdminFilters = function(element, filtersElement, filterGroups, activeFilters) {
+var AdminFilters = function (element, filtersElement, filterGroups, activeFilters) {
     var $root = $(element);
     var $container = $('.filters', $root);
     var lastCount = 0;
@@ -21,7 +21,7 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
 
     function removeFilter() {
         $(this).closest('tr').remove();
-        if($('.filters tr').length == 0) {
+        if ($('.filters tr').length == 0) {
             $('button', $root).hide();
             $('a[class=btn]', $root).hide();
             $('.filters tbody').remove();
@@ -45,15 +45,80 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
         $('button', $root).show();
     }
 
+    function generateMultipleStringsInputs() {
+        $(".filters").children().each(function (key, elm) {
+            if ($(elm).find(".filter-like-multiple").length) {
+                const values = JSON.parse($(elm).find(".filter-like-multiple").first().val());
+                if (values.length) {
+                    values.forEach(function (value, key) {
+                        if (key === 0) {
+                            $(elm).find(".filter-like-multiple").first().val(value);
+                        }
+                        else {
+                            var field = $(`<input type="search" class="filter-val filter-like-multiple form-control" value="${value}" />`).attr('name', $(elm).find(".filter-like-multiple").first().parent().children().first().attr("name"));
+                            $(elm).find(".filter-like-multiple").last().after(field);
+                        }
+                    });
+                    var field = $(`<input type="search" class="filter-val filter-like-multiple form-control" />`).attr('name', $(elm).find(".filter-like-multiple").first().parent().children().first().attr("name"));
+                    $(elm).find(".filter-like-multiple").last().after(field);
+                }
+                else {
+                    $(elm).find(".filter-like-multiple").first().val("");
+                }
+            }
+        });
+    }
+
+    function resetMultipleStringsInputListeners() {
+        $(".filter-like-multiple").off("change", onMultipleStringsChange);
+        $(".filter-like-multiple").on("change", onMultipleStringsChange);
+        $(".filter-like-multiple").off("keyup", onMultipleStringsChange);
+        $(".filter-like-multiple").on("keyup", onMultipleStringsChange);
+    }
+
+    function onMultipleStringsChange(e) {
+        const field = $('<input type="search" class="filter-val filter-like-multiple form-control" />').attr('name', $(e.target).parent().children().first().attr("name"));
+        const inputsCount = $(e.target).parent().children().length;
+        if (!$(e.target).val() && e.key === "Backspace") {
+            $(e.target).prev().focus();
+        }
+        let filledCount = 0;
+        let emptyCount = 0;
+        $(e.target).parent().children().each(function (key, child) {
+            if (child.value) {
+                filledCount++;
+            }
+            else {
+                emptyCount++;
+                if (emptyCount > 1) {
+                    if ($(e.target).prev().hasClass("filter-like-multiple")) {
+                        $(e.target).prev().focus();
+                    }
+                    else {
+                        $(e.target).next().focus();
+                    }
+                    $(e.target).remove();
+                }
+            }
+        });
+        if (e.target.value && filledCount === inputsCount) {
+            $(e.target).after(field);
+        }
+        resetMultipleStringsInputListeners();
+    }
+
     // generate HTML for filter input - allows changing filter input type to one with options or tags
     function createFilterInput(inputContainer, filterValue, filter) {
         if (filter.type == "select2-tags") {
             var $field = $('<input type="hidden" class="filter-val form-control" />').attr('name', makeName(filter.arg));
             $field.val(filterValue);
+        } else if (filter.type == "like-multiple") {
+            var $field = $('<input type="search" class="filter-val filter-like-multiple form-control" />').attr('name', makeName(filter.arg));
+            $field.val(filterValue);
         } else if (filter.options) {
             var $field = $('<select class="filter-val" />').attr('name', makeName(filter.arg));
 
-            $(filter.options).each(function() {
+            $(filter.options).each(function () {
                 // for active filter inputs with options, add "selected" if there is a matching active filter
                 if (filterValue && (filterValue == this[0])) {
                     $field.append($('<option/>')
@@ -68,7 +133,12 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
             $field.val(filterValue);
         }
         inputContainer.replaceWith($('<td/>').append($field));
-
+        if (filter.type == "like-multiple") {
+            if (filterValue) {
+                generateMultipleStringsInputs()
+            }
+            resetMultipleStringsInputListeners();
+        }
         return $field;
     }
 
@@ -79,13 +149,13 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
                 field.attr('data-date-format', "YYYY-MM-DD");
             } else if ((filter.type == "datetimepicker") || (filter.type == "datetimerangepicker")) {
                 field.attr('data-date-format', "YYYY-MM-DD HH:mm:ss");
-            } else if ((filter.type == "timepicker")  || (filter.type == "timerangepicker")) {
+            } else if ((filter.type == "timepicker") || (filter.type == "timerangepicker")) {
                 field.attr('data-date-format', "HH:mm:ss");
             } else if (filter.type == "select2-tags") {
                 var options = [];
                 if (filter.options) {
-                    filter.options.forEach(function(option) {
-                        options.push({id:option[0], text:option[1]});
+                    filter.options.forEach(function (option) {
+                        options.push({ id: option[0], text: option[1] });
                     });
                     // save tag options as json on data attribute
                     field.attr('data-tags', JSON.stringify(options));
@@ -111,7 +181,7 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
                     .append('&nbsp;')
                     .append(name)
                     .click(removeFilter)
-                )
+            )
         );
 
         // Filter operation <select> (equal, not equal, etc)
@@ -119,7 +189,7 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
 
         // if one of the subfilters are selected, use that subfilter to create the input field
         var filterSelection = 0;
-        $.each(subfilters, function( subfilterIndex, subfilter ) {
+        $.each(subfilters, function (subfilterIndex, subfilter) {
             if (this.index == selectedIndex) {
                 $select.append($('<option/>').attr('value', subfilter.arg).attr('selected', true).text(subfilter.operation));
                 filterSelection = subfilterIndex;
@@ -133,7 +203,7 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
         );
 
         // select2 for filter-op (equal, not equal, etc)
-        $select.select2({width: 'resolve'}).on("change", function(e) {
+        $select.select2({ width: 'resolve' }).on("change", function (e) {
             changeOperation(subfilters, $el, filter, $select);
         });
 
@@ -148,8 +218,8 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
     }
 
     // Add Filter Button, new filter
-    $('a.filter', filtersElement).click(function() {
-        var name = ($(this).text().trim !== undefined ? $(this).text().trim() : $(this).text().replace(/^\s+|\s+$/g,''));
+    $('a.filter', filtersElement).click(function () {
+        var name = ($(this).text().trim !== undefined ? $(this).text().trim() : $(this).text().replace(/^\s+|\s+$/g, ''));
 
         addFilter(name, filterGroups[name], false, null);
 
@@ -157,7 +227,7 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
     });
 
     // on page load - add active filters
-    $.each(activeFilters, function( activeIndex, activeFilter ) {
+    $.each(activeFilters, function (activeIndex, activeFilter) {
         var idx = activeFilter[0],
             name = activeFilter[1],
             filterValue = activeFilter[2];
@@ -165,13 +235,13 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
     });
 
     // show "Apply Filter" button when filter input is changed
-    $('.filter-val', $root).on('input change', function() {
+    $('.filter-val', $root).on('input change', function () {
         $('button', $root).show();
     });
 
     $('.remove-filter', $root).click(removeFilter);
 
-    $('.filter-val', $root).not('.select2-container').each(function() {
+    $('.filter-val', $root).not('.select2-container').each(function () {
         var count = getCount($(this).attr('name'));
         if (count > lastCount)
             lastCount = count;
@@ -180,10 +250,28 @@ var AdminFilters = function(element, filtersElement, filterGroups, activeFilters
     lastCount += 1;
 };
 
-(function($) {
+(function ($) {
     $('[data-role=tooltip]').tooltip({
         html: true,
         placement: 'bottom'
+    });
+    $('#filter_form').submit(function (e) {
+        $(".filters").children().each(function (key, elm) {
+            if ($(elm).find(".filter-like-multiple").length) {
+                $(elm).find(".filter-like-multiple").first().parent().attr("hidden", true);
+                const values = [];
+                $(elm).find(".filter-like-multiple").each(function (key, elm) {
+                    const value = $(elm).val();
+                    if (value) {
+                        values.push(value);
+                    }
+                    if (key > 0) {
+                        $(elm).remove();
+                    }
+                })
+                $(elm).find(".filter-like-multiple").first().val(JSON.stringify(values));
+            }
+        });
     });
     if ($('#filter-groups-data').length == 1) {
         var filter = new AdminFilters(
