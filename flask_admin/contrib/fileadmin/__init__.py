@@ -835,8 +835,8 @@ class BaseFileAdmin(BaseView, ActionsMixin):
             if self.is_accessible_path(rel_path):
                 items.append(item)
 
-        sort_column = request.args.get('sort', None, type=str) or self.default_sort_column
-        sort_desc = request.args.get('desc', 0, type=int) or self.default_desc
+        sort_column = request.args.get('sort', self.default_sort_column, type=str)
+        sort_desc = request.args.get('desc', self.default_desc, type=int)
 
         if sort_column is None:
             if self.default_sort_column:
