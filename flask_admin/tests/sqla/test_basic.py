@@ -7,7 +7,11 @@ from flask_admin.form.fields import Select2Field, DateTimeField
 from flask_admin._compat import as_unicode
 from flask_admin._compat import iteritems
 from flask_admin.contrib.sqla import ModelView, filters, tools
-from flask_babelex import Babel
+
+try:
+    from flask_babelex import Babel
+except ImportError:
+    from flask_babel import Babel
 
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import cast
@@ -236,8 +240,8 @@ def test_model():
         model = db.session.query(Model1).first()
         assert model.test1 == u'test1large'
         assert model.test2 == u'test2'
-        assert model.test3 == u''
-        assert model.test4 == u''
+        assert model.test3 in ('', None)  # WTForms 2, WTForms 3
+        assert model.test4 in ('', None)  # WTForms 2, WTForms 3
         assert model.email_field == u'test@test.com'
         assert model.choice_field == u'choice-1'
         assert model.enum_field == u'model1_v1'
@@ -286,8 +290,8 @@ def test_model():
         model = db.session.query(Model1).first()
         assert model.test1 == 'test1small'
         assert model.test2 == 'test2large'
-        assert model.test3 == ''
-        assert model.test4 == ''
+        assert model.test3 in ('', None)  # WTForms 2, WTForms 3
+        assert model.test4 in ('', None)  # WTForms 2, WTForms 3
         assert model.email_field == u'test2@test.com'
         assert model.choice_field is None
         assert model.enum_field is None
@@ -2616,13 +2620,9 @@ def test_multipath_joins():
         assert rv.status_code == 200
 
 
-# TODO: Why this fails?
-@pytest.mark.xfail(raises=Exception)
 def test_different_bind_joins():
-    app, db, admin = setup()
-    app.config['SQLALCHEMY_BINDS'] = {
-        'other': 'sqlite:///'
-    }
+    config = {'SQLALCHEMY_BINDS': {'other': 'sqlite:///'}}
+    app, db, admin = setup(config=config)
 
     with app.app_context():
         class Model1(db.Model):
