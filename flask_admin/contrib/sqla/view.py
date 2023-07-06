@@ -1025,7 +1025,7 @@ class ModelView(BaseModelView):
             query = query.limit(page_size)
 
         if page and page_size:
-            query = query.offset(page * page_size)
+            query = query.offset((page-1) * page_size)
 
         return query
 
