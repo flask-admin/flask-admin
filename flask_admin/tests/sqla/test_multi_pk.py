@@ -1,8 +1,12 @@
 from . import setup
 from .test_basic import CustomModelView
 
-from flask_sqlalchemy import Model
-from sqlalchemy.ext.declarative import declarative_base
+try:
+    # Flask-SQLAlchemy 3
+    from flask_sqlalchemy.model import Model
+except ImportError:
+    from flask_sqlalchemy import Model
+from sqlalchemy.orm import declarative_base
 
 
 def test_multiple_pk():
