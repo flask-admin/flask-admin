@@ -700,7 +700,7 @@ class Admin(object):
         return self._menu_categories.get(name)
 
     def init_app(self, app, index_view=None,
-                 endpoint=None, url=None):
+                 endpoint=None, url=None, subdomain=None):
         """
             Register all views with the Flask application.
 
@@ -708,6 +708,7 @@ class Admin(object):
                 Flask application instance
         """
         self.app = app
+        self.subdomain = subdomain
 
         self._init_extension()
 
