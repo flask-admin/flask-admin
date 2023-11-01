@@ -96,7 +96,7 @@ def test_inline_form():
         rv = client.post('/admin/user/edit/?id=2', data=data)
         assert rv.status_code == 302
         assert User.query.count() == 2
-        assert User.query.get(2).name == u'barf'
+        assert db.session.get(User, 2).name == 'barf'
         assert UserInfo.query.count() == 1
         assert UserInfo.query.one().key == u'bar'
 
@@ -283,8 +283,9 @@ def test_inline_form_base_class():
                 return 'success!'
 
         class StubBaseForm(form.BaseForm):
-            def _get_translations(self):
-                return StubTranslation()
+            class Meta:
+                def get_translations(self, form):
+                    return StubTranslation()
 
         # Set up Admin
         class UserModelView(ModelView):
